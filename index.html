@@ -68,7 +68,6 @@
         .date-display:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15); }
         .date-display::after { content: '📅'; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
         
-        /* NEW: Styles for prefixed inputs */
         .prefixed-input-container {
             display: flex; align-items: center; border: 2px solid #e2e8f0;
             border-radius: 12px; background: rgba(255, 255, 255, 0.9);
@@ -98,25 +97,8 @@
         button#generateBtn:active { transform: translateY(-1px); }
         .canvas-container { display: none; }
         h3 { font-size: 1.1rem; color: #4a5568; margin-top: 25px; margin-bottom: 20px; font-weight: 600; }
-        .qr-preview {
-            background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px;
-            border: 2px solid #e2e8f0; margin-top: 15px; font-family: 'Courier New', monospace;
-            font-size: 0.9rem; color: #4a5568; line-height: 1.4;
-            white-space: pre-wrap; word-break: break-all;
-        }
-        .qr-preview h4 { color: #2d3748; margin-bottom: 10px; font-family: 'Montserrat', sans-serif; font-size: 1rem; }
-        .toggle-switch { position: relative; display: inline-block; width: 60px; height: 34px; margin-left: 10px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #667eea; }
-        input:checked + .slider:before { transform: translateX(26px); }
-        .qr-format-option { display: flex; align-items: center; margin-bottom: 15px; }
+        
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .form-section:nth-child(2) { animation-delay: 0.1s; }
-        .form-section:nth-child(3) { animation-delay: 0.2s; }
-        .form-section:nth-child(4) { animation-delay: 0.3s; }
-        .form-section:nth-child(5) { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
@@ -128,34 +110,34 @@
         <div class="form-section">
             <h2>Common Details</h2>
             <div class="grid-container">
-                <div class="input-group"><label for="studentName">Student Name</label><input type="text" id="studentName" value="" oninput="updateQRPreview()"></div>
-                <div class="input-group"><label for="fatherName">Father Name</label><input type="text" id="fatherName" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="studentName">Student Name</label><input type="text" id="studentName"></div>
+                <div class="input-group"><label for="fatherName">Father Name</label><input type="text" id="fatherName"></div>
                 
                 <div class="input-group">
                     <label for="certNoInput">Certificate Number</label>
                     <div class="prefixed-input-container">
                         <span class="input-prefix">QLA/OD/BBSR/</span>
-                        <input type="text" id="certNoInput" class="prefixed-input" value="" oninput="autoFillSlNo()">
+                        <input type="text" id="certNoInput" class="prefixed-input" oninput="autoFillSlNo()">
                     </div>
                 </div>
                 <div class="input-group">
                     <label for="slNoInput">Serial Number</label>
                     <div class="prefixed-input-container">
                         <span class="input-prefix">QLA5596</span>
-                        <input type="text" id="slNoInput" class="prefixed-input readonly-field" value="" readonly>
+                        <input type="text" id="slNoInput" class="prefixed-input readonly-field" readonly>
                     </div>
                 </div>
 
-                <div class="input-group"><label for="classDivision">Class / Division</label><select id="classDivision" onchange="updateQRPreview()"><option>First</option><option>Second</option><option>Third</option></select></div>
+                <div class="input-group"><label for="classDivision">Class / Division</label><select id="classDivision"><option>First</option><option>Second</option><option>Third</option></select></div>
             </div>
         </div>
         
         <div class="form-section">
             <h2>Certificate Specific Details</h2>
             <div class="grid-container">
-                <div class="input-group"><label for="fromDate">From Date</label><input type="date" id="fromDate" value="" oninput="updateQRPreview()"></div>
-                <div class="input-group"><label for="toDate">To Date</label><input type="date" id="toDate" value="" oninput="updateQRPreview()"></div>
-                <div class="input-group"><label for="inDate">In Date</label><input type="date" id="inDate" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="fromDate">From Date</label><input type="date" id="fromDate"></div>
+                <div class="input-group"><label for="toDate">To Date</label><input type="date" id="toDate"></div>
+                <div class="input-group"><label for="inDate">In Date</label><input type="date" id="inDate"></div>
                 <div class="input-group">
                     <label for="onDate">On Date</label>
                     <div class="date-picker-container">
@@ -170,45 +152,22 @@
         <div class="form-section">
             <h2>Marksheet Specific Details</h2>
             <div class="grid-container">
-                <div class="input-group"><label for="passedCourse">Passed Course</label><select id="passedCourse" onchange="updateQRPreview()"><option>PGDCA</option></select></div>
+                <div class="input-group"><label for="passedCourse">Passed Course</label><select id="passedCourse"><option>PGDCA</option></select></div>
             </div>
             <h3>Enter Marks</h3>
             <div class="grid-container">
                 <div class="input-group"><label>Sem 1 Theory (Full)</label><input type="number" value="200" class="readonly-field" readonly></div>
-                <div class="input-group"><label for="obtainedMark1">Sem 1 Theory (Obtained)</label><input type="number" id="obtainedMark1" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="obtainedMark1">Sem 1 Theory (Obtained)</label><input type="number" id="obtainedMark1"></div>
                 <div class="input-group"><label>Sem 1 Practical (Full)</label><input type="number" value="400" class="readonly-field" readonly></div>
-                <div class="input-group"><label for="obtainedMark2">Sem 1 Practical (Obtained)</label><input type="number" id="obtainedMark2" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="obtainedMark2">Sem 1 Practical (Obtained)</label><input type="number" id="obtainedMark2"></div>
                 <div class="input-group"><label>Sem 2 Theory (Full)</label><input type="number" value="200" class="readonly-field" readonly></div>
-                <div class="input-group"><label for="obtainedMark3">Sem 2 Theory (Obtained)</label><input type="number" id="obtainedMark3" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="obtainedMark3">Sem 2 Theory (Obtained)</label><input type="number" id="obtainedMark3"></div>
                 <div class="input-group"><label>Sem 2 Practical (Full)</label><input type="number" value="400" class="readonly-field" readonly></div>
-                <div class="input-group"><label for="obtainedMark4">Sem 2 Practical (Obtained)</label><input type="number" id="obtainedMark4" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="obtainedMark4">Sem 2 Practical (Obtained)</label><input type="number" id="obtainedMark4"></div>
             </div>
         </div>
 
-        <div class="form-section">
-            <h2>QR Code Settings</h2>
-            <div class="qr-format-option">
-                <label for="qrFormat">Format:</label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="qrFormat" onchange="updateQRPreview()">
-                    <span class="slider"></span>
-                </label>
-                <span style="margin-left: 10px; font-size: 0.9rem;" id="qrFormatLabel">Simple Format</span>
-            </div>
-            <div class="qr-format-option">
-                <label for="includeMarks">Include Marks:</label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="includeMarks" onchange="updateQRPreview()" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="qr-preview">
-                <h4>QR Code Data Preview:</h4>
-                <div id="qrContent"></div>
-            </div>
-        </div>
-
-        <button id="generateBtn">Generate & Download PDF</button>
+        <button id="generateBtn">Generate & Save</button>
     </form>
     
     <div class="canvas-container">
@@ -221,9 +180,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
+        // Aapka Web App URL
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxvh20x1KJXiko1l2mcnf_84MRu-4VXEtl2Zi_io94JTL69jjj5_0wSPcYinMu_xoB2/exec';
+        
         document.addEventListener('DOMContentLoaded', () => {
             initializeDatePicker();
-            updateQRPreview();
             checkRequiredFiles();
             document.getElementById('fromDate').addEventListener('change', calculateToDate);
         });
@@ -235,7 +196,6 @@
             updateDateDisplay(today);
             datePicker.addEventListener('change', function() {
                 updateDateDisplay(new Date(this.value));
-                updateQRPreview();
             });
         }
         
@@ -249,27 +209,23 @@
             document.getElementById('onDate').value = formattedDate;
         }
 
-        // UPDATED: Calculates To Date as 1 year and 16 days after From Date
         function calculateToDate() {
             const fromDateInput = document.getElementById('fromDate');
             const toDateInput = document.getElementById('toDate');
             if (fromDateInput.value) {
                 const fromDate = new Date(fromDateInput.value);
                 fromDate.setFullYear(fromDate.getFullYear() + 1);
-                fromDate.setDate(fromDate.getDate() + 16); // Add 16 days
+                fromDate.setDate(fromDate.getDate() + 16);
                 const year = fromDate.getFullYear();
                 const month = (fromDate.getMonth() + 1).toString().padStart(2, '0');
                 const day = fromDate.getDate().toString().padStart(2, '0');
                 toDateInput.value = `${year}-${month}-${day}`;
-                updateQRPreview();
             }
         }
 
-        // NEW: Auto-fills SL No from Cert No
         function autoFillSlNo() {
             const certValue = document.getElementById('certNoInput').value;
             document.getElementById('slNoInput').value = certValue;
-            updateQRPreview();
         }
 
         function getFullCertNo() {
@@ -280,57 +236,65 @@
             return 'QLA5596' + (document.getElementById('slNoInput').value || '');
         }
         
-        function generateQRData() {
+        // **SAHI QR CODE URL BANANE WALA FUNCTION**
+        function generateVerificationUrl() {
             const certNo = getFullCertNo();
-            const slNo = getFullSlNo();
-            const studentName = document.getElementById('studentName').value || 'N/A';
-            const passedCourse = document.getElementById('passedCourse').value || 'N/A';
-            const isJsonFormat = document.getElementById('qrFormat').checked;
-            const includeMarks = document.getElementById('includeMarks').checked;
-            
-            if (isJsonFormat) {
-                const data = {
-                    student_name: studentName,
-                    certificate_no: certNo,
-                    serial_no: slNo,
-                    course: passedCourse,
-                    division: document.getElementById('classDivision').value || 'N/A',
-                    period: `${document.getElementById('fromDate').value || 'N/A'} to ${document.getElementById('toDate').value || 'N/A'}`,
-                    issued_date: document.getElementById('onDate').value || 'N/A'
-                };
-                if (includeMarks) {
-                    const om1 = parseFloat(document.getElementById('obtainedMark1').value) || 0;
-                    const om2 = parseFloat(document.getElementById('obtainedMark2').value) || 0;
-                    const om3 = parseFloat(document.getElementById('obtainedMark3').value) || 0;
-                    const om4 = parseFloat(document.getElementById('obtainedMark4').value) || 0;
-                    data.total_marks = om1 + om2 + om3 + om4;
-                }
-                return JSON.stringify(data, null, 2);
-            } else {
-                let qrData = `Cert: ${certNo}\nSL: ${slNo}\nStudent: ${studentName}\nCourse: ${passedCourse}`;
-                if (includeMarks) {
-                    const totalObtained = (parseFloat(document.getElementById('obtainedMark1').value) || 0) +
-                                        (parseFloat(document.getElementById('obtainedMark2').value) || 0) +
-                                        (parseFloat(document.getElementById('obtainedMark3').value) || 0) +
-                                        (parseFloat(document.getElementById('obtainedMark4').value) || 0);
-                    qrData += `\nMarks: ${totalObtained}/1200`;
-                }
-                return qrData;
+            if (!document.getElementById('certNoInput').value) {
+                return ""; // Khaali string return karega agar number nahi hai
             }
-        }
-
-        function updateQRPreview() {
-            document.getElementById('qrContent').textContent = generateQRData();
-            document.getElementById('qrFormatLabel').textContent = document.getElementById('qrFormat').checked ? 'JSON Format' : 'Simple Format';
+            // URL ko encode karta hai taaki special characters se dikkat na ho
+            return `${scriptURL}?cert=${encodeURIComponent(certNo)}`;
         }
         
         document.getElementById('generateBtn').addEventListener('click', function() {
+            const btn = this;
             if (!validateForm()) return;
+            
+            btn.disabled = true;
+            btn.textContent = 'SAVING & GENERATING...';
 
+            // Pehle PDF generate karega
+            generateLocalPdf();
+
+            // Phir data Google Sheet par bhejega
+            const formData = new FormData();
+            const totalMarks = (parseFloat(document.getElementById('obtainedMark1').value) || 0) +
+                               (parseFloat(document.getElementById('obtainedMark2').value) || 0) +
+                               (parseFloat(document.getElementById('obtainedMark3').value) || 0) +
+                               (parseFloat(document.getElementById('obtainedMark4').value) || 0);
+
+            formData.append('certificate_no', getFullCertNo());
+            formData.append('serial_no', getFullSlNo());
+            formData.append('student_name', document.getElementById('studentName').value);
+            formData.append('father_name', document.getElementById('fatherName').value);
+            formData.append('course', document.getElementById('passedCourse').value);
+            formData.append('division', document.getElementById('classDivision').value);
+            formData.append('period', `${document.getElementById('fromDate').value} to ${document.getElementById('toDate').value}`);
+            formData.append('issued_date', document.getElementById('onDate').value);
+            formData.append('total_marks', totalMarks);
+
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        alert('Data saved to Google Sheet successfully!');
+                    } else { throw new Error(data.message); }
+                })
+                .catch(error => {
+                    console.error('Error saving data:', error);
+                    alert('Error: Could not save data to Google Sheet. ' + error.message);
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Generate & Save';
+                });
+        });
+
+        function generateLocalPdf() {
             const FONT_SIZE_LARGE = "65px";
             const FONT_SIZE_SMALL = "45px";
             const QR_CODE_SIZE = 262;
-            const POS = { /* Positioning data remains same */
+            const POS = {
                 CERTIFICATE: { CERT_NO: { x: 452, y: 204 }, SL_NO: { x: 1886, y: 204 }, STUDENT_NAME: { x: 690, y: 1272 }, FATHER_NAME: { x: 682, y: 1382 }, FROM_DATE: { x: 454, y: 1730 }, TO_DATE: { x: 1160, y: 1730 }, IN_DATE: { x: 404, y: 2076 }, CLASS_DIVISION: { x: 1380, y: 2076 }, ON_DATE: { x: 1088, y: 2188 }, QR_CODE: { x: 174, y: 230 } },
                 MARKSHEET: { CERT_NO: { x: 440, y: 220 }, SL_NO: { x: 1882, y: 220 }, STUDENT_NAME: { x: 1086, y: 1044 }, FATHER_NAME: { x: 946, y: 1144 }, PASSED_COURSE: { x: 672, y: 1246 }, CLASS_DIVISION: { x: 1596, y: 1246 }, SECURED_MARK: { x: 1888, y: 2750 }, QR_CODE: { x: 178, y: 238 }, TABLE: { ROW_1_Y: 1690, ROW_2_Y: 2072, ROW_3_Y: 2660, THEORY_FULL_X: 1060, THEORY_OBTAINED_X: 1318, PRACTICAL_FULL_X: 1594, PRACTICAL_OBTAINED_X: 1880 } }
             };
@@ -341,7 +305,6 @@
                 return `${parts[2]}.${parts[1]}.${parts[0]}`;
             };
             
-            // UPDATED: Gather data from prefixed inputs
             const studentName = document.getElementById('studentName').value.toUpperCase();
             const fatherName = document.getElementById('fatherName').value.toUpperCase();
             const certNo = getFullCertNo().toUpperCase();
@@ -356,14 +319,23 @@
             const om1 = parseFloat(document.getElementById('obtainedMark1').value) || 0, om2 = parseFloat(document.getElementById('obtainedMark2').value) || 0, om3 = parseFloat(document.getElementById('obtainedMark3').value) || 0, om4 = parseFloat(document.getElementById('obtainedMark4').value) || 0;
             const total1 = 200 + 200, total2 = om1 + om3, total3 = 400 + 400, total4 = om2 + om4, securedMark = total2 + total4;
             
-            const qrData = generateQRData();
+            // Yahan hum sahi URL se QR code banayenge
+            const qrDataUrl = generateVerificationUrl(); 
             const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = '';
-            new QRCode(qrContainer, { text: qrData, width: QR_CODE_SIZE, height: QR_CODE_SIZE });
-
+            qrContainer.innerHTML = ''; // Purana QR code saaf karega
+            
+            if (qrDataUrl) {
+                new QRCode(qrContainer, { text: qrDataUrl, width: QR_CODE_SIZE, height: QR_CODE_SIZE });
+            } else {
+                 alert("Certificate Number is required to generate a QR code!");
+                 return; // QR code nahi banega agar number khaali hai
+            }
+            
             setTimeout(() => {
                 const qrImg = qrContainer.querySelector('img');
-                if (!qrImg) { alert("QR Code generation failed!"); return; }
+                if (!qrImg) {
+                    alert("QR Code generation failed! Please try again."); return;
+                }
                 let processedImages = 0;
                 const onImageProcessed = () => { if (++processedImages === 2) createAndDownloadPdf(); };
                 processImage('certificate.jpg', 'certificateCanvas', (ctx) => drawCertificate(ctx, qrImg), onImageProcessed);
@@ -437,7 +409,7 @@
                     alert('An error occurred while generating the PDF. Please check the console.');
                 }
             }
-        });
+        }
 
         function validateForm() {
             const requiredFields = { studentName: "Student Name", fatherName: "Father Name", certNoInput: "Certificate Number", fromDate: "From Date", toDate: "To Date", inDate: "In Date" };
@@ -456,11 +428,11 @@
                 const img = new Image();
                 img.onerror = () => {
                     if (!document.body.querySelector('.file-warning')) {
-                         const warning = document.createElement('div');
-                         warning.className = 'file-warning';
-                         warning.style.cssText = 'background: #ffc107; color: #333; padding: 10px; text-align: center; font-weight: bold; margin-top: 15px; border-radius: 8px;';
-                         warning.textContent = `Warning: Could not load image files. Ensure 'certificate.jpg' and 'marksheet.jpg' are in the same folder.`;
-                         document.body.insertBefore(warning, document.body.firstChild);
+                        const warning = document.createElement('div');
+                        warning.className = 'file-warning';
+                        warning.style.cssText = 'background: #ffc107; color: #333; padding: 10px; text-align: center; font-weight: bold; margin-top: 15px; border-radius: 8px;';
+                        warning.textContent = `Warning: Could not load image files. Ensure 'certificate.jpg' and 'marksheet.jpg' are in the same folder.`;
+                        document.body.insertBefore(warning, document.body.firstChild);
                     }
                 };
                 img.src = file;
