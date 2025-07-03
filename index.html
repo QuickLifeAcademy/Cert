@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate & Marksheet Generator</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #fff; text-align: center; font-size: 2.5rem; font-weight: 700;
+            margin-bottom: 30px; text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); letter-spacing: 1px;
+        }
+        #generatorForm {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 40px;
+            border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); width: 100%;
+            max-width: 1000px; border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .form-section {
+            margin-bottom: 35px; background: rgba(255, 255, 255, 0.6); padding: 25px;
+            border-radius: 15px; border-left: 5px solid #667eea;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05); animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .form-section:last-child { margin-bottom: 0; }
+        h2 {
+            font-size: 1.4rem; color: #4a5568; margin-bottom: 20px; font-weight: 700;
+            position: relative; padding-bottom: 10px;
+        }
+        h2::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 3px;
+            background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 2px;
+        }
+        .grid-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px;
+        }
+        .input-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; color: #2d3748; letter-spacing: 0.5px; }
+        input[type="text"], input[type="number"], input[type="date"], select {
+            padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: 12px;
+            font-family: 'Montserrat', sans-serif; font-size: 1rem;
+            transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);
+        }
+        input:focus, select:focus {
+            outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        .readonly-field { background: #edf2f7 !important; color: #718096 !important; cursor: not-allowed !important; }
+        .date-picker-container { position: relative; }
+        .date-display {
+            padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9); cursor: pointer; font-size: 1rem; color: #2d3748;
+            transition: all 0.3s ease; position: relative;
+        }
+        .date-display:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15); }
+        .date-display::after { content: '📅'; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
+        
+        /* NEW: Styles for prefixed inputs */
+        .prefixed-input-container {
+            display: flex; align-items: center; border: 2px solid #e2e8f0;
+            border-radius: 12px; background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+        .prefixed-input-container:focus-within {
+            border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        .input-prefix {
+            padding: 14px 0 14px 16px; color: #718096; font-size: 1rem; white-space: nowrap;
+        }
+        .prefixed-input {
+            border: none; background: transparent; padding: 14px 16px 14px 4px;
+            width: 100%;
+        }
+        .prefixed-input:focus { outline: none; }
+        
+        button#generateBtn {
+            display: block; width: 100%; padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+            border: none; border-radius: 15px; font-size: 1.2rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s ease; margin-top: 30px;
+            text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        button#generateBtn:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4); }
+        button#generateBtn:active { transform: translateY(-1px); }
+        .canvas-container { display: none; }
+        h3 { font-size: 1.1rem; color: #4a5568; margin-top: 25px; margin-bottom: 20px; font-weight: 600; }
+        .qr-preview {
+            background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 12px;
+            border: 2px solid #e2e8f0; margin-top: 15px; font-family: 'Courier New', monospace;
+            font-size: 0.9rem; color: #4a5568; line-height: 1.4;
+            white-space: pre-wrap; word-break: break-all;
+        }
+        .qr-preview h4 { color: #2d3748; margin-bottom: 10px; font-family: 'Montserrat', sans-serif; font-size: 1rem; }
+        .toggle-switch { position: relative; display: inline-block; width: 60px; height: 34px; margin-left: 10px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #667eea; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .qr-format-option { display: flex; align-items: center; margin-bottom: 15px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .form-section:nth-child(2) { animation-delay: 0.1s; }
+        .form-section:nth-child(3) { animation-delay: 0.2s; }
+        .form-section:nth-child(4) { animation-delay: 0.3s; }
+        .form-section:nth-child(5) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+
+    <h1>Certificate & Marksheet Generator 🚀</h1>
+
+    <form id="generatorForm" onsubmit="return false;">
+        
+        <div class="form-section">
+            <h2>Common Details</h2>
+            <div class="grid-container">
+                <div class="input-group"><label for="studentName">Student Name</label><input type="text" id="studentName" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="fatherName">Father Name</label><input type="text" id="fatherName" value="" oninput="updateQRPreview()"></div>
+                
+                <div class="input-group">
+                    <label for="certNoInput">Certificate Number</label>
+                    <div class="prefixed-input-container">
+                        <span class="input-prefix">QLA/OD/BBSR/</span>
+                        <input type="text" id="certNoInput" class="prefixed-input" value="" oninput="autoFillSlNo()">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="slNoInput">Serial Number</label>
+                    <div class="prefixed-input-container">
+                        <span class="input-prefix">QLA5596</span>
+                        <input type="text" id="slNoInput" class="prefixed-input readonly-field" value="" readonly>
+                    </div>
+                </div>
+
+                <div class="input-group"><label for="classDivision">Class / Division</label><select id="classDivision" onchange="updateQRPreview()"><option>First</option><option>Second</option><option>Third</option></select></div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h2>Certificate Specific Details</h2>
+            <div class="grid-container">
+                <div class="input-group"><label for="fromDate">From Date</label><input type="date" id="fromDate" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="toDate">To Date</label><input type="date" id="toDate" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label for="inDate">In Date</label><input type="date" id="inDate" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group">
+                    <label for="onDate">On Date</label>
+                    <div class="date-picker-container">
+                        <input type="date" id="onDatePicker" style="display: none;">
+                        <div class="date-display" id="onDateDisplay" onclick="document.getElementById('onDatePicker').showPicker()"></div>
+                        <input type="hidden" id="onDate">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Marksheet Specific Details</h2>
+            <div class="grid-container">
+                <div class="input-group"><label for="passedCourse">Passed Course</label><select id="passedCourse" onchange="updateQRPreview()"><option>PGDCA</option></select></div>
+            </div>
+            <h3>Enter Marks</h3>
+            <div class="grid-container">
+                <div class="input-group"><label>Sem 1 Theory (Full)</label><input type="number" value="200" class="readonly-field" readonly></div>
+                <div class="input-group"><label for="obtainedMark1">Sem 1 Theory (Obtained)</label><input type="number" id="obtainedMark1" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label>Sem 1 Practical (Full)</label><input type="number" value="400" class="readonly-field" readonly></div>
+                <div class="input-group"><label for="obtainedMark2">Sem 1 Practical (Obtained)</label><input type="number" id="obtainedMark2" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label>Sem 2 Theory (Full)</label><input type="number" value="200" class="readonly-field" readonly></div>
+                <div class="input-group"><label for="obtainedMark3">Sem 2 Theory (Obtained)</label><input type="number" id="obtainedMark3" value="" oninput="updateQRPreview()"></div>
+                <div class="input-group"><label>Sem 2 Practical (Full)</label><input type="number" value="400" class="readonly-field" readonly></div>
+                <div class="input-group"><label for="obtainedMark4">Sem 2 Practical (Obtained)</label><input type="number" id="obtainedMark4" value="" oninput="updateQRPreview()"></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>QR Code Settings</h2>
+            <div class="qr-format-option">
+                <label for="qrFormat">Format:</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="qrFormat" onchange="updateQRPreview()">
+                    <span class="slider"></span>
+                </label>
+                <span style="margin-left: 10px; font-size: 0.9rem;" id="qrFormatLabel">Simple Format</span>
+            </div>
+            <div class="qr-format-option">
+                <label for="includeMarks">Include Marks:</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="includeMarks" onchange="updateQRPreview()" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="qr-preview">
+                <h4>QR Code Data Preview:</h4>
+                <div id="qrContent"></div>
+            </div>
+        </div>
+
+        <button id="generateBtn">Generate & Download PDF</button>
+    </form>
+    
+    <div class="canvas-container">
+        <canvas id="certificateCanvas"></canvas>
+        <canvas id="marksheetCanvas"></canvas>
+        <div id="qrcode"></div> 
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDatePicker();
+            updateQRPreview();
+            checkRequiredFiles();
+            document.getElementById('fromDate').addEventListener('change', calculateToDate);
+        });
+        
+        function initializeDatePicker() {
+            const datePicker = document.getElementById('onDatePicker');
+            const today = new Date();
+            datePicker.value = today.toISOString().split('T')[0];
+            updateDateDisplay(today);
+            datePicker.addEventListener('change', function() {
+                updateDateDisplay(new Date(this.value));
+                updateQRPreview();
+            });
+        }
+        
+        function updateDateDisplay(selectedDate) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const day = selectedDate.getDate().toString().padStart(2, '0');
+            const month = months[selectedDate.getMonth()];
+            const year = selectedDate.getFullYear();
+            const formattedDate = `${day} ${month} ${year}`;
+            document.getElementById('onDateDisplay').textContent = formattedDate;
+            document.getElementById('onDate').value = formattedDate;
+        }
+
+        // UPDATED: Calculates To Date as 1 year and 16 days after From Date
+        function calculateToDate() {
+            const fromDateInput = document.getElementById('fromDate');
+            const toDateInput = document.getElementById('toDate');
+            if (fromDateInput.value) {
+                const fromDate = new Date(fromDateInput.value);
+                fromDate.setFullYear(fromDate.getFullYear() + 1);
+                fromDate.setDate(fromDate.getDate() + 16); // Add 16 days
+                const year = fromDate.getFullYear();
+                const month = (fromDate.getMonth() + 1).toString().padStart(2, '0');
+                const day = fromDate.getDate().toString().padStart(2, '0');
+                toDateInput.value = `${year}-${month}-${day}`;
+                updateQRPreview();
+            }
+        }
+
+        // NEW: Auto-fills SL No from Cert No
+        function autoFillSlNo() {
+            const certValue = document.getElementById('certNoInput').value;
+            document.getElementById('slNoInput').value = certValue;
+            updateQRPreview();
+        }
+
+        function getFullCertNo() {
+            return 'QLA/OD/BBSR/' + (document.getElementById('certNoInput').value || '');
+        }
+
+        function getFullSlNo() {
+            return 'QLA5596' + (document.getElementById('slNoInput').value || '');
+        }
+        
+        function generateQRData() {
+            const certNo = getFullCertNo();
+            const slNo = getFullSlNo();
+            const studentName = document.getElementById('studentName').value || 'N/A';
+            const passedCourse = document.getElementById('passedCourse').value || 'N/A';
+            const isJsonFormat = document.getElementById('qrFormat').checked;
+            const includeMarks = document.getElementById('includeMarks').checked;
+            
+            if (isJsonFormat) {
+                const data = {
+                    student_name: studentName,
+                    certificate_no: certNo,
+                    serial_no: slNo,
+                    course: passedCourse,
+                    division: document.getElementById('classDivision').value || 'N/A',
+                    period: `${document.getElementById('fromDate').value || 'N/A'} to ${document.getElementById('toDate').value || 'N/A'}`,
+                    issued_date: document.getElementById('onDate').value || 'N/A'
+                };
+                if (includeMarks) {
+                    const om1 = parseFloat(document.getElementById('obtainedMark1').value) || 0;
+                    const om2 = parseFloat(document.getElementById('obtainedMark2').value) || 0;
+                    const om3 = parseFloat(document.getElementById('obtainedMark3').value) || 0;
+                    const om4 = parseFloat(document.getElementById('obtainedMark4').value) || 0;
+                    data.total_marks = om1 + om2 + om3 + om4;
+                }
+                return JSON.stringify(data, null, 2);
+            } else {
+                let qrData = `Cert: ${certNo}\nSL: ${slNo}\nStudent: ${studentName}\nCourse: ${passedCourse}`;
+                if (includeMarks) {
+                    const totalObtained = (parseFloat(document.getElementById('obtainedMark1').value) || 0) +
+                                        (parseFloat(document.getElementById('obtainedMark2').value) || 0) +
+                                        (parseFloat(document.getElementById('obtainedMark3').value) || 0) +
+                                        (parseFloat(document.getElementById('obtainedMark4').value) || 0);
+                    qrData += `\nMarks: ${totalObtained}/1200`;
+                }
+                return qrData;
+            }
+        }
+
+        function updateQRPreview() {
+            document.getElementById('qrContent').textContent = generateQRData();
+            document.getElementById('qrFormatLabel').textContent = document.getElementById('qrFormat').checked ? 'JSON Format' : 'Simple Format';
+        }
+        
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            if (!validateForm()) return;
+
+            const FONT_SIZE_LARGE = "65px";
+            const FONT_SIZE_SMALL = "45px";
+            const QR_CODE_SIZE = 262;
+            const POS = { /* Positioning data remains same */
+                CERTIFICATE: { CERT_NO: { x: 452, y: 204 }, SL_NO: { x: 1886, y: 204 }, STUDENT_NAME: { x: 690, y: 1272 }, FATHER_NAME: { x: 682, y: 1382 }, FROM_DATE: { x: 454, y: 1730 }, TO_DATE: { x: 1160, y: 1730 }, IN_DATE: { x: 404, y: 2076 }, CLASS_DIVISION: { x: 1380, y: 2076 }, ON_DATE: { x: 1088, y: 2188 }, QR_CODE: { x: 174, y: 230 } },
+                MARKSHEET: { CERT_NO: { x: 440, y: 220 }, SL_NO: { x: 1882, y: 220 }, STUDENT_NAME: { x: 1086, y: 1044 }, FATHER_NAME: { x: 946, y: 1144 }, PASSED_COURSE: { x: 672, y: 1246 }, CLASS_DIVISION: { x: 1596, y: 1246 }, SECURED_MARK: { x: 1888, y: 2750 }, QR_CODE: { x: 178, y: 238 }, TABLE: { ROW_1_Y: 1690, ROW_2_Y: 2072, ROW_3_Y: 2660, THEORY_FULL_X: 1060, THEORY_OBTAINED_X: 1318, PRACTICAL_FULL_X: 1594, PRACTICAL_OBTAINED_X: 1880 } }
+            };
+
+            const formatDateForCanvas = (dateString) => {
+                if (!dateString) return '';
+                const parts = dateString.split('-');
+                return `${parts[2]}.${parts[1]}.${parts[0]}`;
+            };
+            
+            // UPDATED: Gather data from prefixed inputs
+            const studentName = document.getElementById('studentName').value.toUpperCase();
+            const fatherName = document.getElementById('fatherName').value.toUpperCase();
+            const certNo = getFullCertNo().toUpperCase();
+            const slNo = getFullSlNo().toUpperCase();
+            const classDivision = document.getElementById('classDivision').value.toUpperCase();
+            const fromDate = formatDateForCanvas(document.getElementById('fromDate').value);
+            const toDate = formatDateForCanvas(document.getElementById('toDate').value);
+            const inDate = formatDateForCanvas(document.getElementById('inDate').value);
+            const onDate = document.getElementById('onDate').value.toUpperCase();
+            const passedCourse = document.getElementById('passedCourse').value.toUpperCase();
+            
+            const om1 = parseFloat(document.getElementById('obtainedMark1').value) || 0, om2 = parseFloat(document.getElementById('obtainedMark2').value) || 0, om3 = parseFloat(document.getElementById('obtainedMark3').value) || 0, om4 = parseFloat(document.getElementById('obtainedMark4').value) || 0;
+            const total1 = 200 + 200, total2 = om1 + om3, total3 = 400 + 400, total4 = om2 + om4, securedMark = total2 + total4;
+            
+            const qrData = generateQRData();
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, { text: qrData, width: QR_CODE_SIZE, height: QR_CODE_SIZE });
+
+            setTimeout(() => {
+                const qrImg = qrContainer.querySelector('img');
+                if (!qrImg) { alert("QR Code generation failed!"); return; }
+                let processedImages = 0;
+                const onImageProcessed = () => { if (++processedImages === 2) createAndDownloadPdf(); };
+                processImage('certificate.jpg', 'certificateCanvas', (ctx) => drawCertificate(ctx, qrImg), onImageProcessed);
+                processImage('marksheet.jpg', 'marksheetCanvas', (ctx) => drawMarksheet(ctx, qrImg), onImageProcessed);
+            }, 200);
+
+            function processImage(src, canvasId, drawFunction, callback) {
+                const canvas = document.getElementById(canvasId);
+                const ctx = canvas.getContext('2d');
+                const bgImage = new Image();
+                bgImage.src = src;
+                bgImage.onload = () => { canvas.width = bgImage.width; canvas.height = bgImage.height; ctx.drawImage(bgImage, 0, 0); drawFunction(ctx); callback(); };
+                bgImage.onerror = () => alert(`Error: Could not load ${src}. Make sure it's in the same folder.`);
+            }
+
+            function drawCertificate(ctx, qrImg) {
+                ctx.fillStyle = 'black';
+                ctx.font = `bold ${FONT_SIZE_LARGE} Montserrat`;
+                ctx.fillText(studentName, POS.CERTIFICATE.STUDENT_NAME.x, POS.CERTIFICATE.STUDENT_NAME.y);
+                ctx.fillText(fatherName, POS.CERTIFICATE.FATHER_NAME.x, POS.CERTIFICATE.FATHER_NAME.y);
+                ctx.fillText(fromDate, POS.CERTIFICATE.FROM_DATE.x, POS.CERTIFICATE.FROM_DATE.y);
+                ctx.fillText(toDate, POS.CERTIFICATE.TO_DATE.x, POS.CERTIFICATE.TO_DATE.y);
+                ctx.fillText(inDate, POS.CERTIFICATE.IN_DATE.x, POS.CERTIFICATE.IN_DATE.y);
+                ctx.fillText(classDivision, POS.CERTIFICATE.CLASS_DIVISION.x, POS.CERTIFICATE.CLASS_DIVISION.y);
+                ctx.fillText(onDate, POS.CERTIFICATE.ON_DATE.x, POS.CERTIFICATE.ON_DATE.y);
+                ctx.font = `bold ${FONT_SIZE_SMALL} Montserrat`;
+                ctx.fillText(certNo, POS.CERTIFICATE.CERT_NO.x, POS.CERTIFICATE.CERT_NO.y);
+                ctx.fillText(slNo, POS.CERTIFICATE.SL_NO.x, POS.CERTIFICATE.SL_NO.y);
+                ctx.drawImage(qrImg, POS.CERTIFICATE.QR_CODE.x, POS.CERTIFICATE.QR_CODE.y, QR_CODE_SIZE, QR_CODE_SIZE);
+            }
+
+            function drawMarksheet(ctx, qrImg) {
+                const p = POS.MARKSHEET;
+                ctx.fillStyle = 'black';
+                ctx.font = `bold ${FONT_SIZE_LARGE} Montserrat`;
+                ctx.fillText(studentName, p.STUDENT_NAME.x, p.STUDENT_NAME.y);
+                ctx.fillText(fatherName, p.FATHER_NAME.x, p.FATHER_NAME.y);
+                ctx.fillText(passedCourse, p.PASSED_COURSE.x, p.PASSED_COURSE.y);
+                ctx.fillText(classDivision, p.CLASS_DIVISION.x, p.CLASS_DIVISION.y);
+                ctx.fillText(securedMark.toString(), p.SECURED_MARK.x, p.SECURED_MARK.y);
+                ctx.font = `bold ${FONT_SIZE_SMALL} Montserrat`;
+                ctx.fillText(certNo, p.CERT_NO.x, p.CERT_NO.y);
+                ctx.fillText(slNo, p.SL_NO.x, p.SL_NO.y);
+                const t = p.TABLE;
+                ctx.fillText('200', t.THEORY_FULL_X, t.ROW_1_Y); ctx.fillText(om1.toString(), t.THEORY_OBTAINED_X, t.ROW_1_Y);
+                ctx.fillText('400', t.PRACTICAL_FULL_X, t.ROW_1_Y); ctx.fillText(om2.toString(), t.PRACTICAL_OBTAINED_X, t.ROW_1_Y);
+                ctx.fillText('200', t.THEORY_FULL_X, t.ROW_2_Y); ctx.fillText(om3.toString(), t.THEORY_OBTAINED_X, t.ROW_2_Y);
+                ctx.fillText('400', t.PRACTICAL_FULL_X, t.ROW_2_Y); ctx.fillText(om4.toString(), t.PRACTICAL_OBTAINED_X, t.ROW_2_Y);
+                ctx.fillText(total1.toString(), t.THEORY_FULL_X, t.ROW_3_Y); ctx.fillText(total2.toString(), t.THEORY_OBTAINED_X, t.ROW_3_Y);
+                ctx.fillText(total3.toString(), t.PRACTICAL_FULL_X, t.ROW_3_Y); ctx.fillText(total4.toString(), t.PRACTICAL_OBTAINED_X, t.ROW_3_Y);
+                ctx.drawImage(qrImg, p.QR_CODE.x, p.QR_CODE.y, QR_CODE_SIZE, QR_CODE_SIZE);
+            }
+
+            function createAndDownloadPdf() {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const certCanvas = document.getElementById('certificateCanvas');
+                    const marksheetCanvas = document.getElementById('marksheetCanvas');
+                    const certWidth = certCanvas.width, certHeight = certCanvas.height;
+                    const markWidth = marksheetCanvas.width, markHeight = marksheetCanvas.height;
+                    const pdf = new jsPDF({ orientation: certWidth > certHeight ? 'l' : 'p', unit: 'px', format: [certWidth, certHeight] });
+                    pdf.addImage(certCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, certWidth, certHeight);
+                    pdf.addPage([markWidth, markHeight], markWidth > markHeight ? 'l' : 'p');
+                    pdf.addImage(marksheetCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, markWidth, markHeight);
+                    const safeStudentName = studentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    const safeCertNo = document.getElementById('certNoInput').value.replace(/[^a-z0-9]/gi, '_');
+                    const filename = `${safeStudentName}_${safeCertNo}.pdf`;
+                    pdf.save(filename);
+                } catch (error) {
+                    console.error('PDF generation error:', error);
+                    alert('An error occurred while generating the PDF. Please check the console.');
+                }
+            }
+        });
+
+        function validateForm() {
+            const requiredFields = { studentName: "Student Name", fatherName: "Father Name", certNoInput: "Certificate Number", fromDate: "From Date", toDate: "To Date", inDate: "In Date" };
+            for (let id in requiredFields) {
+                if (!document.getElementById(id).value.trim()) {
+                    alert(`Error: Please fill in the "${requiredFields[id]}" field.`);
+                    document.getElementById(id).focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function checkRequiredFiles() {
+            ['certificate.jpg', 'marksheet.jpg'].forEach(file => {
+                const img = new Image();
+                img.onerror = () => {
+                    if (!document.body.querySelector('.file-warning')) {
+                         const warning = document.createElement('div');
+                         warning.className = 'file-warning';
+                         warning.style.cssText = 'background: #ffc107; color: #333; padding: 10px; text-align: center; font-weight: bold; margin-top: 15px; border-radius: 8px;';
+                         warning.textContent = `Warning: Could not load image files. Ensure 'certificate.jpg' and 'marksheet.jpg' are in the same folder.`;
+                         document.body.insertBefore(warning, document.body.firstChild);
+                    }
+                };
+                img.src = file;
+            });
+        }
+    </script>
+</body>
+</html>
